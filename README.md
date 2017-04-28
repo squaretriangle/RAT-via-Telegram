@@ -1,6 +1,8 @@
 # RAT-via-Telegram
 
-Windows Remote Administration Tool via Telegram (Python 2.7) | Originally created by <a href="http://github.com/Ritiek">Ritiek</a>
+Windows Remote Administration Tool via Telegram (Python 2.7) | Originally created by <a href="http://github.com/Ritiek">Ritiek</a>, Forked and modified by <a href="http://github.com/mvrozanti">mvrozanti</a>
+
+This modified version uses Telegram bot API v2, instead of the traditional v1. The main change is keyboard buttons instead of text typing.
 
 ### Why another one?
 
@@ -31,6 +33,8 @@ Windows Remote Administration Tool via Telegram (Python 2.7) | Originally create
 - Access to microphone on target
 - Start HTTP Proxy Server
 - Freeze target's keyboard
+- Return the target's ARP table
+- Return the target's Tasklist (process list)
 - [WIP] Schedule tasks to run at specified time
 - [WIP] Freeze target's mouse
 - [WIP] Get active processes and services
